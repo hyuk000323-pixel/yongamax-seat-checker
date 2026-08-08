@@ -7,8 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; }
-        .seat { transition: all 0.2s ease; }
-        .seat:hover { transform: scale(1.2); z-index: 10; }
+        .seat { transition: all 0.15s ease; }
+        .seat:hover { transform: scale(1.3); z-index: 10; }
+        ::-webkit-scrollbar { height: 8px; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
@@ -20,29 +22,32 @@
                 용아맥 좌석 평가기
             </h1>
         </div>
-        <p class="text-xs text-slate-400 hidden sm:block">CGV 용산아이파크몰 IMAX 최고의 명당을 찾아보세요</p>
+        <p class="text-xs text-slate-400 hidden sm:block">CGV 용산아이파크몰 IMAX · 실제 좌석표 기반 자동 평가</p>
     </header>
     <!-- Main Container -->
-    <main class="flex-1 max-w-6xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Left: Interactive Seat Selector -->
         <div class="lg:col-span-2 bg-slate-900/60 border border-slate-800 rounded-2xl p-6 flex flex-col items-center justify-between shadow-xl">
 
             <!-- Screen Area -->
-            <div class="w-full mb-8 text-center">
+            <div class="w-full mb-6 text-center">
                 <div class="w-full h-3 bg-gradient-to-r from-red-600 via-amber-400 to-red-600 rounded-full shadow-[0_0_25px_rgba(239,68,68,0.6)] mb-2"></div>
-                <p class="text-xs tracking-widest text-slate-400 uppercase font-semibold">SCREEN (1.43:1 / 국내 최대 스크린)</p>
+                <p class="text-xs tracking-widest text-slate-400 uppercase font-semibold">SCREEN (1.43:1 · 31m × 22m)</p>
             </div>
             <!-- Seat Grid Simulation -->
-            <div class="w-full overflow-x-auto pb-4 flex flex-col items-center gap-2">
-                <div id="seat-grid" class="flex flex-col gap-2 min-w-[320px]"></div>
+            <div class="w-full overflow-x-auto pb-4">
+                <div id="seat-grid" class="flex flex-col gap-1.5 items-center min-w-max mx-auto px-2"></div>
             </div>
             <!-- Legend -->
-            <div class="flex flex-wrap gap-4 text-xs text-slate-300 mt-6 pt-4 border-t border-slate-800 justify-center">
-                <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-emerald-500 inline-block"></span> S등급 (최고 명당)</div>
-                <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-blue-500 inline-block"></span> A등급 (명당권)</div>
-                <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-amber-500 inline-block"></span> B등급 (뒷열, 무난)</div>
-                <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-rose-500 inline-block"></span> C~E등급 (근접석/사이드/최전열, 비추천)</div>
+            <div class="flex flex-wrap gap-3 text-[11px] text-slate-300 mt-4 pt-4 border-t border-slate-800 justify-center">
+                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-500 inline-block"></span> S (91~100)</div>
+                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-500 inline-block"></span> A (78~90)</div>
+                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-teal-500 inline-block"></span> B (61~77)</div>
+                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-amber-500 inline-block"></span> C (46~60)</div>
+                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-orange-500 inline-block"></span> D (31~45)</div>
+                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-rose-500 inline-block"></span> E (0~30)</div>
             </div>
+            <p class="text-[10px] text-slate-600 mt-2">좌석을 클릭하면 오른쪽 패널에 바로 평가 결과가 표시됩니다.</p>
         </div>
         <!-- Right: Seat Evaluation Result Panel -->
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-xl">
@@ -54,149 +59,259 @@
                 <div class="space-y-4 mb-6">
                     <div>
                         <label class="block text-xs text-slate-400 mb-1 font-medium">열 선택 (Row)</label>
-                        <select id="row-select" onchange="evaluateSeat()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-red-500">
-                            <option value="H" selected>H열 (S등급 - 최고 명당)</option>
-                            <option value="I">I열 (S등급 - 최고 명당)</option>
-                            <option value="G">G열 (A등급 - 명당권)</option>
-                            <option value="J">J열 (A등급 - 명당권)</option>
-                            <option value="K">K열 (A등급 - 명당권, 좌측 일부 홀딩석)</option>
-                            <option value="L">L열 (B등급 - 뒷열, 무난)</option>
-                            <option value="M">M열 (B등급 - 뒷열, 무난)</option>
-                            <option value="N">N열 (B등급 - 맨 뒷열, 전체 조망)</option>
-                            <option value="F">F열 (C등급 - 근접석)</option>
-                            <option value="E">E열 (C등급 - 근접석)</option>
-                            <option value="D">D열 (C등급 - 근접석)</option>
-                            <option value="A">A~C열 (E등급 - 최전열, 강력 비추천)</option>
-                        </select>
+                        <select id="row-select" onchange="onRowChange()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-red-500"></select>
                     </div>
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1 font-medium">좌석 번호 구역 (Seat Zone)</label>
-                        <select id="number-select" onchange="evaluateSeat()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-red-500">
-                            <option value="center" selected>중앙 블록 (명당권 기준 16~29번대)</option>
-                            <option value="mid-side">준중앙 사이드</option>
-                            <option value="outer-side">극사이드 (화면 왜곡 구간)</option>
-                        </select>
+                        <label class="block text-xs text-slate-400 mb-1 font-medium">좌석 번호</label>
+                        <select id="seat-select" onchange="evaluateSeat()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-red-500"></select>
                     </div>
                 </div>
                 <!-- Result Display Card -->
                 <div id="result-card" class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
                     <div class="flex items-center justify-between">
-                        <span id="seat-tag" class="text-xs font-extrabold px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                            S등급 (최고 명당)
-                        </span>
-                        <span id="score-text" class="text-2xl font-black text-emerald-400">98점</span>
+                        <span id="seat-tag" class="text-xs font-extrabold px-2.5 py-1 rounded-md"></span>
+                        <span id="score-text" class="text-3xl font-black"></span>
                     </div>
-                    <h3 id="seat-title" class="text-lg font-bold text-white">H열 중앙 (최고 명당)</h3>
-                    <p id="seat-desc" class="text-xs text-slate-300 leading-relaxed">
-                        나무위키·좌석 가이드 기준 최고 명당 구간입니다. 화면 정중앙이 눈높이에 맞고 사운드 밸런스가 가장 좋습니다.
-                    </p>
+                    <h3 id="seat-title" class="text-lg font-bold text-white"></h3>
+                    <p id="seat-desc" class="text-xs text-slate-300 leading-relaxed"></p>
+                    <ul id="seat-notes" class="text-xs text-slate-400 leading-relaxed list-disc list-inside space-y-1"></ul>
                     <div class="space-y-1.5 pt-2 border-t border-slate-800 text-xs">
                         <div class="flex justify-between text-slate-400">
                             <span>시야 몰입감</span>
-                            <span id="stat-vision" class="font-bold text-slate-200">★★★★★</span>
+                            <span id="stat-vision" class="font-bold text-slate-200"></span>
                         </div>
                         <div class="flex justify-between text-slate-400">
                             <span>사운드 전달력</span>
-                            <span id="stat-sound" class="font-bold text-slate-200">★★★★★</span>
+                            <span id="stat-sound" class="font-bold text-slate-200"></span>
                         </div>
                         <div class="flex justify-between text-slate-400">
-                            <span>목 피로도</span>
-                            <span id="stat-comfort" class="font-bold text-emerald-400">매우 편안함</span>
+                            <span>목·자세 편안함</span>
+                            <span id="stat-comfort" class="font-bold text-slate-200"></span>
+                        </div>
+                        <div class="flex justify-between text-slate-400">
+                            <span>화면 왜곡 없음</span>
+                            <span id="stat-symmetry" class="font-bold text-slate-200"></span>
                         </div>
                     </div>
                 </div>
             </div>
             <!-- Footer Quote -->
-            <div class="mt-6 pt-4 border-t border-slate-800 text-center">
-                <p class="text-[11px] text-slate-500">💡 참고: 공식 추천 좌석은 G~J열 16~29번대이며, 예매 오픈 후 명당은 보통 5분 안에 매진됩니다.</p>
-                <p class="text-[10px] text-slate-600 mt-1">※ 등급 정보 출처: 나무위키 'CGV 용산아이파크몰/IMAX관', eone 블로그 '용아맥 좌석 명당 총정리' (참고용, 실제 배치와 다를 수 있음)</p>
+            <div class="mt-6 pt-4 border-t border-slate-800 text-center space-y-1">
+                <p class="text-[11px] text-slate-500">💡 공식 추천 좌석: G~J열 16~29번대. 예매 오픈 후 명당은 보통 5분 내 매진됩니다.</p>
+                <p class="text-[10px] text-slate-600">※ 점수는 나무위키·좌석 가이드에서 확인된 열별 명당 등급(G~J열 최우수, A~C열 최악)을 기준점으로 삼아, 스크린 중심으로부터의 좌우 거리를 감안해 알고리즘으로 산출한 추정치입니다. 실제 체감과 다를 수 있습니다.</p>
             </div>
         </div>
     </main>
     <!-- Logic Script -->
     <script>
-        const seatData = {
-            // S등급 - 최고 명당 (나무위키 "추천좌석 G~J열", 좌석 가이드 "S등급 H·I열 중앙")
-            'H_center': { grade: 'S등급', score: '98점', color: 'emerald', title: 'H열 중앙 (최고 명당)', vision: '★★★★★', sound: '★★★★★', comfort: '매우 편안함', desc: '좌석 가이드 기준 최고 명당 구간입니다. 화면 정중앙이 눈높이에 맞고 사운드 밸런스가 가장 좋습니다.' },
-            'I_center': { grade: 'S등급', score: '97점', color: 'emerald', title: 'I열 중앙 (최고 명당)', vision: '★★★★★', sound: '★★★★★', comfort: '매우 편안함', desc: 'H열과 함께 예매 오픈과 동시에 가장 먼저 매진되는 구간입니다.' },
-            'G_center': { grade: 'A등급', score: '92점', color: 'blue', title: 'G열 중앙 (명당권)', vision: '★★★★★', sound: '★★★★☆', comfort: '편안함', desc: '나무위키 기준 명당권(G~J열)에 해당하는 구간입니다.' },
-            'J_center': { grade: 'A등급', score: '91점', color: 'blue', title: 'J열 중앙 (명당권)', vision: '★★★★★', sound: '★★★★☆', comfort: '편안함', desc: '나무위키 기준 명당권(G~J열)에 해당하는 구간입니다.' },
-            'K_center': { grade: 'A등급', score: '90점', color: 'blue', title: 'K열 중앙 (명당권)', vision: '★★★★☆', sound: '★★★★★', comfort: '편안함', desc: '명당권 마지막 열. 중앙 좌측 일부는 홀딩석으로 상영 당일 풀리기도 합니다.' },
-            'H_mid-side': { grade: 'A등급', score: '86점', color: 'blue', title: 'H열 준중앙', vision: '★★★★☆', sound: '★★★★☆', comfort: '편안함', desc: '사이드지만 I열 이상이라 왜곡이 크지 않은 구간입니다.' },
-            'I_mid-side': { grade: 'A등급', score: '87점', color: 'blue', title: 'I열 준중앙', vision: '★★★★☆', sound: '★★★★☆', comfort: '편안함', desc: '사이드 좌석 중에서는 양호한 편입니다.' },
-            'G_mid-side': { grade: 'B등급', score: '78점', color: 'amber', title: 'G열 준중앙', vision: '★★★☆☆', sound: '★★★☆☆', comfort: '보통', desc: '명당권 사이드. 중앙보다는 아쉽지만 무난합니다.' },
-            'J_mid-side': { grade: 'B등급', score: '79점', color: 'amber', title: 'J열 준중앙', vision: '★★★☆☆', sound: '★★★☆☆', comfort: '보통', desc: '명당권 사이드. 중앙보다는 아쉽지만 무난합니다.' },
-            'K_mid-side': { grade: 'B등급', score: '77점', color: 'amber', title: 'K열 준중앙', vision: '★★★☆☆', sound: '★★★☆☆', comfort: '보통', desc: '명당권 사이드. 중앙보다는 아쉽지만 무난합니다.' },
-            'L_center': { grade: 'B등급', score: '80점', color: 'amber', title: 'L열 중앙 (뒷열)', vision: '★★★☆☆', sound: '★★★★☆', comfort: '매우 편안함', desc: '명당권보다 뒤쪽이라 스크린 전체가 눈에 편하게 들어옵니다.' },
-            'M_center': { grade: 'B등급', score: '76점', color: 'amber', title: 'M열 중앙 (뒷열)', vision: '★★★☆☆', sound: '★★★★☆', comfort: '매우 편안함', desc: '전체 조망 위주의 좌석입니다.' },
-            'N_center': { grade: 'B등급', score: '74점', color: 'amber', title: 'N열 중앙 (맨 뒷열)', vision: '★★★☆☆', sound: '★★★☆☆', comfort: '최상', desc: '맨 뒷열, 몰입감보다는 편안한 관람 위주입니다.' },
-            'L_mid-side': { grade: 'B등급', score: '73점', color: 'amber', title: 'L열 준중앙', vision: '★★★☆☆', sound: '★★★☆☆', comfort: '편안함', desc: '뒷열 사이드, 무난한 자리입니다.' },
-            'M_mid-side': { grade: 'B등급', score: '71점', color: 'amber', title: 'M열 준중앙', vision: '★★★☆☆', sound: '★★★☆☆', comfort: '편안함', desc: '뒷열 사이드, 무난한 자리입니다.' },
-            'N_mid-side': { grade: 'B등급', score: '70점', color: 'amber', title: 'N열 준중앙', vision: '★★★☆☆', sound: '★★★☆☆', comfort: '편안함', desc: '뒷열 사이드, 무난한 자리입니다.' },
-            'D_center': { grade: 'C등급', score: '55점', color: 'rose', title: 'D열 중앙 (근접석)', vision: '★★★★☆', sound: '★★★☆☆', comfort: '목 뻐근함', desc: '최전열(A~C열)보다는 낫지만 화면에 매우 가까워 목이 뻐근할 수 있습니다.' },
-            'E_center': { grade: 'C등급', score: '58점', color: 'rose', title: 'E열 중앙 (근접석)', vision: '★★★★☆', sound: '★★★☆☆', comfort: '목 뻐근함', desc: '최전열보다는 낫지만 화면에 매우 가까운 구간입니다.' },
-            'F_center': { grade: 'C등급', score: '60점', color: 'rose', title: 'F열 중앙 (근접석)', vision: '★★★★★', sound: '★★★☆☆', comfort: '목 뻐근함', desc: '압도적인 화면감이 있지만 장시간 관람 시 목 피로도가 있을 수 있습니다.' },
-            'A_center': { grade: 'E등급', score: '20점', color: 'rose', title: 'A~C열 (최전열, 강력 비추천)', vision: '★☆☆☆☆', sound: '★★☆☆☆', comfort: '매우 불편함', desc: "나무위키에서 '최후의 용자석'으로 불리는 구간입니다. 화면이 머리 위로 솟아 있어 사실상 제대로 보기 어렵습니다." }
+        // ---- 1. 실제 좌석 배치 데이터 (사진 기준, A~P열) ----
+        const SEAT_RANGES = {
+            A: [[3,15],[17,19],[22,24],[26,30],[31,43]],
+            B: [[3,15],[16,30],[31,43]],
+            C: [[3,15],[16,30],[31,43]],
+            D: [[3,15],[16,30],[31,43]],
+            E: [[3,15],[16,30],[31,43]],
+            F: [[3,14],[16,29],[31,42]],
+            G: [[3,14],[16,29],[31,42]],
+            H: [[3,14],[16,29],[31,42]],
+            I: [[1,2],[3,14],[16,29],[31,42],[44,45]],
+            J: [[1,2],[3,14],[16,29],[31,42],[44,45]],
+            K: [[1,2],[3,14],[16,29],[31,42],[44,45]],
+            L: [[1,2],[3,14],[16,29],[31,42],[44,45]],
+            M: [[1,2],[3,14],[16,29],[31,42],[44,45]],
+            N: [[1,2],[3,14],[16,29],[31,42],[44,45]],
+            O: [[1,2],[3,14],[16,29],[31,42],[44,45]],
+            P: [[1,2],[3,8],[37,42],[44,45]]
         };
-        const outerSideData = { grade: 'D등급', score: '40점', color: 'rose', title: '극사이드 (기피)', vision: '★★☆☆☆', sound: '★★☆☆☆', comfort: '불편함', desc: '스크린 양쪽 끝 사이드 라인으로, 화면비가 심하게 왜곡되어 보이고 사운드도 한쪽으로 치우쳐 기피되는 구간입니다.' };
-        function evaluateSeat() {
-            const row = document.getElementById('row-select').value;
-            const num = document.getElementById('number-select').value;
-            let data;
-            if (row === 'A') {
-                data = seatData['A_center'];
-            } else if (num === 'outer-side') {
-                data = { ...outerSideData, title: `${row}열 극사이드 (기피)` };
-            } else {
-                const key = `${row}_${num}`;
-                const defaultKey = `${row}_center`;
-                data = seatData[key] || seatData[defaultKey] || {
-                    grade: 'B등급', score: '70점', color: 'amber', title: `${row}열 좌석`, vision: '★★★☆☆', sound: '★★★☆☆', comfort: '보통', desc: '무난하게 관람 가능한 좌석입니다.'
-                };
-            }
-            const tagEl = document.getElementById('seat-tag');
-            tagEl.innerText = data.grade;
-            tagEl.className = `text-xs font-extrabold px-2.5 py-1 rounded-md bg-${data.color}-500/20 text-${data.color}-400 border border-${data.color}-500/30`;
-            document.getElementById('score-text').innerText = data.score;
-            document.getElementById('score-text').className = `text-2xl font-black text-${data.color}-400`;
-            document.getElementById('seat-title').innerText = data.title;
-            document.getElementById('seat-desc').innerText = data.desc;
-            document.getElementById('stat-vision').innerText = data.vision;
-            document.getElementById('stat-sound').innerText = data.sound;
-            document.getElementById('stat-comfort').innerText = data.comfort;
-        }
-        // Mini Seat Grid Setup
-        const grid = document.getElementById('seat-grid');
-        const rows = ['N', 'M', 'L', 'K', 'J', 'I', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'];
-        rows.forEach(r => {
-            const rowDiv = document.createElement('div');
-            rowDiv.className = 'flex items-center gap-1 justify-center';
-            let rowHtml = `<span class="text-[10px] text-slate-500 w-4 text-right">${r}</span>`;
-            for (let i = 1; i <= 15; i++) {
-                let colorClass = 'bg-slate-700';
-                const isCenter = i >= 6 && i <= 10;
-                if (['H', 'I'].includes(r)) colorClass = isCenter ? 'bg-emerald-500' : 'bg-blue-500';
-                else if (['G', 'J', 'K'].includes(r)) colorClass = isCenter ? 'bg-blue-500' : 'bg-amber-500';
-                else if (['L', 'M', 'N'].includes(r)) colorClass = 'bg-amber-500';
-                else if (['D', 'E', 'F'].includes(r)) colorClass = 'bg-rose-500';
-                else if (['A', 'B', 'C'].includes(r)) colorClass = 'bg-rose-500';
+        const ROW_ORDER = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P'];
 
-                rowHtml += `<div onclick="selectRowFromMap('${r}')" class="w-3.5 h-3.5 rounded-sm ${colorClass} seat cursor-pointer hover:opacity-80" title="${r}열"></div>`;
+        // ---- 2. 열별 기준점수 (0~70) : 나무위키·좌석 가이드의 정성적 등급(G~J 명당, A~C 최악)을 앵커로 보정 ----
+        const ROW_BASE = { A:5, B:8, C:12, D:16, E:21, F:26, G:58, H:70, I:68, J:57, K:53, L:46, M:42, N:38, O:34, P:22 };
+        // 앞열(A~F)은 "중앙에 앉아도 근본적으로 불리함"을 반영해 좌우 보정 가중치를 낮춤
+        const ROW_HORIZ_WEIGHT = { A:0.5,B:0.5,C:0.5, D:0.8,E:0.8,F:0.8, G:1,H:1,I:1,J:1,K:1,L:1,M:1,N:1,O:1,P:1 };
+        const CENTER_COL = 23; // 좌우 대칭 중심 좌석번호
+        const SIGMA = 10;      // 좌우 감쇠 폭
+
+        // 열별 시야/사운드/편안함 참고 지표 (1~5)
+        const ROW_STATS = {
+            A:{vision:2,sound:2,comfort:1}, B:{vision:2,sound:2,comfort:1}, C:{vision:3,sound:2,comfort:1},
+            D:{vision:4,sound:3,comfort:2}, E:{vision:5,sound:3,comfort:2}, F:{vision:5,sound:3,comfort:2},
+            G:{vision:5,sound:4,comfort:4}, H:{vision:5,sound:5,comfort:5}, I:{vision:5,sound:5,comfort:5},
+            J:{vision:4,sound:5,comfort:4}, K:{vision:4,sound:5,comfort:4}, L:{vision:3,sound:4,comfort:5},
+            M:{vision:3,sound:4,comfort:5}, N:{vision:3,sound:3,comfort:5}, O:{vision:2,sound:3,comfort:5},
+            P:{vision:2,sound:2,comfort:3}
+        };
+
+        function seatExists(row, num) {
+            return SEAT_RANGES[row].some(([s,e]) => num >= s && num <= e);
+        }
+        function getOffset(num) { return Math.abs(num - CENTER_COL); }
+        function horizScore(num, row) {
+            const off = getOffset(num);
+            return 30 * Math.exp(-(off*off) / (2*SIGMA*SIGMA)) * ROW_HORIZ_WEIGHT[row];
+        }
+        function getZone(num) {
+            const off = getOffset(num);
+            if (off <= 8) return { label: '중앙', desc: '스크린 정중앙 라인으로 화면비 왜곡이 거의 없습니다.' };
+            if (off <= 20) return { label: '사이드', desc: '중앙에서 벗어난 사이드 라인으로 화면비가 다소 왜곡되어 보일 수 있습니다.' };
+            return { label: '극사이드', desc: '스크린 가장자리에 가까운 좌석으로 화면비가 크게 왜곡되고 사운드도 한쪽으로 치우칠 수 있습니다.' };
+        }
+        function computeScore(row, num) {
+            const raw = ROW_BASE[row] + horizScore(num, row);
+            return Math.round(Math.min(100, Math.max(0, raw)));
+        }
+        function getGrade(score) {
+            if (score >= 91) return { grade: 'S', color: 'emerald', label: '최고 명당' };
+            if (score >= 78) return { grade: 'A', color: 'blue', label: '강력 추천' };
+            if (score >= 61) return { grade: 'B', color: 'teal', label: '추천' };
+            if (score >= 46) return { grade: 'C', color: 'amber', label: '보통' };
+            if (score >= 31) return { grade: 'D', color: 'orange', label: '비추천' };
+            return { grade: 'E', color: 'rose', label: '강력 비추천' };
+        }
+        function starText(n) { return '★'.repeat(n) + '☆'.repeat(5-n); }
+
+        function rowNote(row) {
+            if (['A','B','C'].includes(row)) return "화면이 머리 위로 크게 솟아 있어 사실상 정상적인 관람이 어려운 최전열입니다. 흔히 '최후의 용자석'이라 불립니다.";
+            if (['D','E','F'].includes(row)) return '최전열보다는 낫지만 화면에 매우 가까워 장시간 관람 시 목이 뻐근해질 수 있는 근접석입니다.';
+            if (['G','H','I','J'].includes(row)) return '나무위키·좌석 가이드에서 공식적으로 확인된 명당권(G~J열)에 속하는 구간입니다.';
+            if (row === 'K') return '명당권에 준하는 좋은 자리이며, 중앙 좌측 일부는 홀딩석으로 운영되어 상영 당일 오전에 추가로 풀리기도 합니다.';
+            if (['L','M','N','O'].includes(row)) return '명당권보다 뒤쪽이라 몰입감은 다소 낮지만, 스크린 전체가 눈에 편하게 들어오고 목 부담이 적은 구간입니다.';
+            if (row === 'P') return '중앙 구역이 없는 특수한 열로 전 좌석이 사이드 구간에 해당하며, 상영관 맨 뒤쪽에 위치합니다.';
+            return '';
+        }
+        function extraNote(num) {
+            if (num <= 2 || num >= 44) return '각 열에서 가장 바깥쪽에 위치한 별도 사이드석입니다. 스크린이 심하게 잘려 보일 수 있습니다.';
+            return '';
+        }
+
+        // ---- 3. UI 초기화 ----
+        const rowSelect = document.getElementById('row-select');
+        const seatSelect = document.getElementById('seat-select');
+
+        function rowLabel(row) {
+            if (row === 'P') return 'P열 (중앙석 없음 · 전체 사이드)';
+            // 중앙(23번 또는 가장 가까운 유효 좌석)의 점수로 대표 등급 표시
+            let refNum = null;
+            for (let d = 0; d <= 10; d++) {
+                if (seatExists(row, CENTER_COL - d)) { refNum = CENTER_COL - d; break; }
+                if (seatExists(row, CENTER_COL + d)) { refNum = CENTER_COL + d; break; }
             }
-            rowDiv.innerHTML = rowHtml;
-            grid.appendChild(rowDiv);
-        });
-        function selectRowFromMap(r) {
-            const sel = document.getElementById('row-select');
-            const targetValue = ['A', 'B', 'C'].includes(r) ? 'A' : r;
-            for(let i=0; i<sel.options.length; i++) {
-                if(sel.options[i].value === targetValue) {
-                    sel.selectedIndex = i;
-                    break;
-                }
-            }
+            const g = getGrade(computeScore(row, refNum));
+            return `${row}열 (${g.grade}등급 - ${g.label})`;
+        }
+
+        function buildRowOptions() {
+            rowSelect.innerHTML = ROW_ORDER.map(r => `<option value="${r}">${rowLabel(r)}</option>`).join('');
+            rowSelect.value = 'H';
+        }
+        function buildSeatOptions(row) {
+            const blocks = SEAT_RANGES[row];
+            const blockNames = blocks.length === 5
+                ? ['왼쪽 극단석', '왼쪽 사이드', '중앙', '오른쪽 사이드', '오른쪽 극단석']
+                : blocks.length === 4
+                ? ['왼쪽 극단석', '왼쪽', '오른쪽', '오른쪽 극단석']
+                : ['왼쪽 사이드', '중앙', '오른쪽 사이드'];
+            let html = '';
+            blocks.forEach(([s,e], idx) => {
+                const nums = [];
+                for (let n = s; n <= e; n++) nums.push(n);
+                html += `<optgroup label="${blockNames[idx] || ''}">` +
+                    nums.map(n => `<option value="${n}">${n}번</option>`).join('') +
+                    '</optgroup>';
+            });
+            seatSelect.innerHTML = html;
+        }
+        function onRowChange() {
+            buildSeatOptions(rowSelect.value);
             evaluateSeat();
         }
+
+        function evaluateSeat() {
+            const row = rowSelect.value;
+            const num = parseInt(seatSelect.value, 10);
+            if (!row || !num) return;
+            const score = computeScore(row, num);
+            const g = getGrade(score);
+            const zone = getZone(num);
+            const stats = ROW_STATS[row];
+            let visionAdj = stats.vision, soundAdj = stats.sound, comfortAdj = stats.comfort;
+            const off = getOffset(num);
+            if (off > 20) { visionAdj -= 2; soundAdj -= 2; }
+            else if (off > 8) { visionAdj -= 1; soundAdj -= 1; }
+            visionAdj = Math.max(1, Math.min(5, visionAdj));
+            soundAdj = Math.max(1, Math.min(5, soundAdj));
+            comfortAdj = Math.max(1, Math.min(5, comfortAdj));
+            const symmetryStars = off <= 8 ? 5 : off <= 15 ? 3 : off <= 20 ? 2 : 1;
+
+            const tagEl = document.getElementById('seat-tag');
+            tagEl.innerText = `${g.grade}등급 (${g.label})`;
+            tagEl.className = `text-xs font-extrabold px-2.5 py-1 rounded-md bg-${g.color}-500/20 text-${g.color}-400 border border-${g.color}-500/30`;
+
+            const scoreEl = document.getElementById('score-text');
+            scoreEl.innerText = `${score}점`;
+            scoreEl.className = `text-3xl font-black text-${g.color}-400`;
+
+            document.getElementById('seat-title').innerText = `${row}열 ${num}번 (${zone.label})`;
+            document.getElementById('seat-desc').innerText = `${rowNote(row)}`;
+
+            const notes = [zone.desc];
+            const ex = extraNote(num);
+            if (ex) notes.push(ex);
+            document.getElementById('seat-notes').innerHTML = notes.map(n => `<li>${n}</li>`).join('');
+
+            document.getElementById('stat-vision').innerText = starText(visionAdj);
+            document.getElementById('stat-sound').innerText = starText(soundAdj);
+            document.getElementById('stat-comfort').innerText = starText(comfortAdj);
+            document.getElementById('stat-symmetry').innerText = starText(symmetryStars);
+
+            highlightGrid(row, num);
+        }
+
+        // ---- 4. 실물 배치를 반영한 좌석맵 렌더링 ----
+        const grid = document.getElementById('seat-grid');
+        function renderGrid() {
+            grid.innerHTML = '';
+            ROW_ORDER.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'flex items-center gap-[3px]';
+                let html = `<span class="text-[10px] text-slate-500 w-4 text-right mr-1">${row}</span>`;
+                for (let col = 1; col <= 45; col++) {
+                    let marginClass = '';
+                    if (col === 3) marginClass = 'ml-2';
+                    if (col === 16) marginClass = 'ml-2';
+                    if (col === 31) marginClass = 'ml-2';
+                    if (col === 44) marginClass = 'ml-2';
+                    if (seatExists(row, col)) {
+                        const score = computeScore(row, col);
+                        const g = getGrade(score);
+                        html += `<div data-row="${row}" data-num="${col}" onclick="selectSeatFromGrid('${row}',${col})" class="w-2.5 h-2.5 rounded-[2px] bg-${g.color}-500 seat cursor-pointer ${marginClass}" title="${row}열 ${col}번 · ${g.grade}등급 ${score}점"></div>`;
+                    } else {
+                        html += `<div class="w-2.5 h-2.5 ${marginClass}"></div>`;
+                    }
+                }
+                rowDiv.innerHTML = html;
+                grid.appendChild(rowDiv);
+            });
+        }
+        function highlightGrid(row, num) {
+            document.querySelectorAll('#seat-grid [data-row]').forEach(el => {
+                el.classList.remove('ring-2', 'ring-white');
+            });
+            const target = document.querySelector(`#seat-grid [data-row="${row}"][data-num="${num}"]`);
+            if (target) target.classList.add('ring-2', 'ring-white');
+        }
+        function selectSeatFromGrid(row, num) {
+            rowSelect.value = row;
+            buildSeatOptions(row);
+            seatSelect.value = String(num);
+            evaluateSeat();
+        }
+
+        // ---- 5. 초기 실행 ----
+        buildRowOptions();
+        buildSeatOptions('H');
+        seatSelect.value = '22';
+        renderGrid();
         evaluateSeat();
     </script>
 </body>
