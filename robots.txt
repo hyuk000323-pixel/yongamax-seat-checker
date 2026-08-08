@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hyuk000323-pixel.github.io/yongamax-seat-checker/sitemap.xml
